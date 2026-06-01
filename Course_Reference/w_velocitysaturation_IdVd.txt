@@ -1,0 +1,170 @@
+File {
+   Grid      = "@tdr@"
+   Plot      = "@tdrdat@"
+   Current   = "@plot@"
+   Output    = "@log@"
+   Parameter = "@parameter@"
+}
+
+
+plot {
+    eDensity hDensity
+    eCurrent hCurrent
+    eCurrent/Vector
+    ElectricField
+    ElectricField/Vector
+    eQuasiFermi hQuasiFermi
+    egradQuasiFermi hgradQuasiFermi
+    Potential Doping SpaceCharge
+    SRH Auger 
+    AvalancheGeneration
+    eAvalanche hAvalanche
+    eMobility hMobility
+    DonorConcentration AcceptorConcentration
+    Doping
+    eVelocity hVelocity
+    BarrierTunneling
+    ConductionBandEnergy ValanceBandEnergy BandGap
+    eQuasiFermi hQuasiFermi
+    Band2BandGeneration
+    eBand2BandGeneration
+    hBand2BandGeneration
+    xMoleFraction yMoleFraction
+    SemiconductorElectricField
+    SemiconductorGradConductionBand
+    SemiconductorGradValenceBand
+    EffectiveBandGap   
+}
+
+currentplot{
+    Band2BandGeneration( Integrate(Semiconductor) )
+    eBand2BandGeneration( Integrate(Semiconductor) )
+    hBand2BandGeneration( Integrate(Semiconductor) )
+
+
+}
+
+electrode {
+  { name="gate"   voltage= 0 Workfunction=4.6}
+  { name="source" voltage= 0 }
+  { name="drain"  voltage= 0 }
+  { name="body"   voltage= 0 }
+ 
+  
+}
+
+
+physics 
+{
+  Fermi
+  mobility (DopingDependence HighFieldSaturation)
+  EffectiveIntrinsicDensity(NoBandGapNarrowing)
+  Recombination( SRH(DopingDependence) Band2Band(E1))  
+}
+
+
+Math {
+  -CheckUndefinedModels
+  Number_of_Threads=16
+  Extrapolate
+  Derivatives
+  RelErrControl
+  Digits=5
+  ErRef(electron)=1.e10
+  ErRef(hole)=1.e10
+  Notdamped=50
+  Iterations=50
+  DirectCurrentComput
+  RhsMin=1e-20
+  ExtendedPrecision
+  #eDrForceRefDens=1.e12
+  #hDrForceRefDens=1.e12
+  ExitOnFailure
+
+  
+}    
+
+
+
+
+
+
+Solve {
+      Poisson
+      Coupled { Poisson Electron  }
+      Coupled { Poisson Electron Hole }
+      save(FilePrefix="vd0_n@node@")
+      plot(FilePrefix="vd0_n@node@")
+      
+    Quasistationary
+         (InitialStep=1e-3 Maxstep=0.1 MinStep=1e-7
+         Goal { name="gate" voltage=@Vg@ })
+         { Coupled { Poisson Electron Hole } }
+         save(FilePrefix="vg_initial_n@node@")
+         plot(FilePrefix="vg_initial_n@node@")
+         Load(FilePrefix="vg_initial_n@node@")
+
+    Quasistationary
+         (InitialStep=1e-3 Maxstep=0.1 MinStep=1e-7
+         Goal { name="drain" voltage=0.0 })
+         { Coupled { Poisson Electron Hole } }   
+         save(FilePrefix="Vd_0.0_n@node@") 
+         plot(FilePrefix="Vd_0.0_n@node@") 
+         NewCurrentPrefix="IdVd_L_"   
+
+    Quasistationary
+         (InitialStep=1e-3 Maxstep=0.1 MinStep=1e-7
+         Goal { name="drain" voltage=0.5 })
+         { Coupled { Poisson Electron Hole } }   
+         save(FilePrefix="Vd_0.5_n@node@") 
+         plot(FilePrefix="Vd_0.5_n@node@") 
+
+    Quasistationary
+         (InitialStep=1e-3 Maxstep=0.1 MinStep=1e-7
+         Goal { name="drain" voltage=1.0 })
+         { Coupled { Poisson Electron Hole } }   
+         save(FilePrefix="Vd_1.0_n@node@") 
+         plot(FilePrefix="Vd_1.0_n@node@") 
+
+    Quasistationary
+         (InitialStep=1e-3 Maxstep=0.1 MinStep=1e-7
+         Goal { name="drain" voltage=1.5 })
+         { Coupled { Poisson Electron Hole } }   
+         save(FilePrefix="Vd_1.5_n@node@") 
+         plot(FilePrefix="Vd_1.5_n@node@") 
+
+    Quasistationary
+         (InitialStep=1e-3 Maxstep=0.1 MinStep=1e-7
+         Goal { name="drain" voltage=2.0 })
+         { Coupled { Poisson Electron Hole } }   
+         save(FilePrefix="Vd_2.0_n@node@") 
+         plot(FilePrefix="Vd_2.0_n@node@") 
+
+    Quasistationary
+         (InitialStep=1e-3 Maxstep=0.1 MinStep=1e-7
+         Goal { name="drain" voltage=2.5 })
+         { Coupled { Poisson Electron Hole } }   
+         save(FilePrefix="Vd_2.5_n@node@") 
+         plot(FilePrefix="Vd_2.5_n@node@") 
+
+    Quasistationary
+         (InitialStep=1e-3 Maxstep=0.1 MinStep=1e-7
+         Goal { name="drain" voltage=3.0 })
+         { Coupled { Poisson Electron Hole } }   
+         save(FilePrefix="Vd_3.0_n@node@") 
+         plot(FilePrefix="Vd_3.0_n@node@") 
+
+            
+
+
+
+
+
+
+          
+
+
+  }
+
+
+

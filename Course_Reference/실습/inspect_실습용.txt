@@ -1,0 +1,19 @@
+load_library EXTRACT
+
+proj_load IdVg_L_n@previous@_des.plt iv
+
+cv_create idvgs "iv gate OuterVoltage" "iv drain TotalCurrent"
+
+set Lg @Lg@
+set W 1
+
+set Vth [ExtractVti Vth idvgs [expr 1e-7*$W/$Lg]]
+
+set SS [ExtractSS SS idvgs [expr $Vth]]
+
+set Ion [ExtractIoff Ion idvgs 3]
+set Ioff [ExtractIoff Ioff idvgs 0]
+
+set ratio [expr [expr $Ion]/[expr $Ioff]]
+set scientificNotation [format "%.3e" $ratio]
+ft_scalar OnOffRatio $scientificNotation

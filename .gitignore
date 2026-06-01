@@ -1,0 +1,14 @@
+# Sentaurus / TCAD simulation outputs and logs
+*.plt
+*.tdr
+*.log
+*.err
+*.out
+*.job
+*.bnd
+*.cmd_prev
+
+# OS temporary files
+Thumbs.db
+Desktop.ini
+.DS_Store

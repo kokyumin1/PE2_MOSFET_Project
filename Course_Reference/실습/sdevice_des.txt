@@ -1,0 +1,181 @@
+File {
+   Grid      = "@tdr@"
+   Plot      = "@tdrdat@"
+   Current   = "@plot@"
+   Output    = "@log@"
+   Parameter = "@parameter@"
+}
+
+
+plot {
+    eDensity hDensity
+    eCurrent hCurrent
+    eCurrent/Vector
+    ElectricField
+    ElectricField/Vector
+    eQuasiFermi hQuasiFermi
+    egradQuasiFermi hgradQuasiFermi
+    Potential Doping SpaceCharge
+    SRH Auger
+    AvalancheGeneration
+    eAvalanche hAvalanche
+    eMobility hMobility
+    DonorConcentration AcceptorConcentration
+    Doping
+    eVelocity hVelocity
+    BarrierTunneling
+    ConductionBandEnergy ValanceBandEnergy BandGap
+    eQuasiFermi hQuasiFermi
+    Band2BandGeneration
+    eBand2BandGeneration
+    hBand2BandGeneration
+    xMoleFraction yMoleFraction
+    SemiconductorElectricField
+    SemiconductorGradConductionBand
+    SemiconductorGradValenceBand
+    EffectiveBandGap   
+}
+
+
+
+electrode {
+  { name="gate"   voltage= 0 Workfunction=4.6 }
+  { name="source" voltage= 0 }
+  { name="drain"  voltage= 0 }
+  { name="body"   voltage= 0 }
+ 
+  
+}
+
+
+physics 
+{
+  Fermi
+  mobility (
+	DopingDependence 
+	HighFieldSaturation
+	)
+  EffectiveIntrinsicDensity(NoBandGapNarrowing)
+  Recombination( 
+	SRH(DopingDependence) 
+	Band2Band(E1)
+	)  
+}
+
+
+Math {
+  -CheckUndefinedModels
+  Number_of_Threads=1
+  Extrapolate
+  Derivatives
+  RelErrControl
+  Digits=5
+  ErRef(electron)=1.e10
+  ErRef(hole)=1.e10
+  Notdamped=50
+  Iterations=50
+  DirectCurrentComput
+  RhsMin=1e-20
+  ExtendedPrecision
+  #eDrForceRefDens=1.e12
+  #hDrForceRefDens=1.e12
+  ExitOnFailure
+
+  
+}    
+
+
+
+
+
+
+Solve {
+      Poisson
+      Coupled { Poisson Electron  }
+      Coupled { Poisson Electron Hole }
+      save(FilePrefix="vd0_n@node@")
+      plot(FilePrefix="vd0_n@node@")
+      
+    Quasistationary
+         (InitialStep=1e-4 Maxstep=1e-1 MinStep=1e-7
+         Goal { name="drain" voltage=1.0 })
+         { Coupled { Poisson Electron Hole } }
+         save(FilePrefix="vd_initial_n@node@")
+         plot(FilePrefix="vd_initial_n@node@")
+         Load(FilePrefix="vd_initial_n@node@")
+
+    Quasistationary
+         (InitialStep=1e-4 Maxstep=1e-1 MinStep=1e-7
+         Goal { name="gate" voltage=-1.0 })
+         { Coupled { Poisson Electron Hole } }   
+         save(FilePrefix="Vg_n1.0_n@node@") 
+         plot(FilePrefix="Vg_n1.0_n@node@") 
+         NewCurrentPrefix="IdVg_L_"
+
+    Quasistationary
+         (InitialStep=1e-4 Maxstep=1e-1 MinStep=1e-7
+         Goal { name="gate" voltage=-0.4 })
+         { Coupled { Poisson Electron Hole } }   
+         save(FilePrefix="Vg_n0.4_n@node@") 
+         plot(FilePrefix="Vg_n0.4_n@node@")
+
+
+    Quasistationary
+         (InitialStep=1e-4 Maxstep=1e-1 MinStep=1e-7
+         Goal { name="gate" voltage=0.0 })
+         { Coupled { Poisson Electron Hole } }   
+         save(FilePrefix="Vg_0.0_n@node@") 
+         plot(FilePrefix="Vg_0.0_n@node@")     
+ 
+
+    Quasistationary
+         (InitialStep=1e-4 Maxstep=1e-1 MinStep=1e-7
+         Goal { name="gate" voltage=0.6 })
+         { Coupled { Poisson Electron Hole } }   
+         save(FilePrefix="Vg_0.6_n@node@") 
+         plot(FilePrefix="Vg_0.6_n@node@") 
+ 
+
+    Quasistationary
+         (InitialStep=1e-4 Maxstep=1e-1 MinStep=1e-7
+         Goal { name="gate" voltage=1.3 })
+         { Coupled { Poisson Electron Hole } }   
+         save(FilePrefix="Vg_1.3_n@node@") 
+         plot(FilePrefix="Vg_1.3_n@node@") 
+
+
+    Quasistationary
+         (InitialStep=1e-4 Maxstep=1e-1 MinStep=1e-7
+         Goal { name="gate" voltage=1.6 })
+         { Coupled { Poisson Electron Hole } }   
+         save(FilePrefix="Vg_1.6_n@node@") 
+         plot(FilePrefix="Vg_1.6_n@node@") 
+ 
+
+    Quasistationary
+         (InitialStep=1e-4 Maxstep=1e-1 MinStep=1e-7
+         Goal { name="gate" voltage=2.0 })
+         { Coupled { Poisson Electron Hole } }   
+         save(FilePrefix="Vg_2.0_n@node@") 
+         plot(FilePrefix="Vg_2.0_n@node@") 
+
+
+    Quasistationary
+         (InitialStep=1e-4 Maxstep=1e-1 MinStep=1e-7
+         Goal { name="gate" voltage=3.0 })
+         { Coupled { Poisson Electron Hole } }   
+         save(FilePrefix="Vg_3.0_n@node@") 
+         plot(FilePrefix="Vg_3.0_n@node@") 
+
+    
+
+
+
+
+          
+
+
+  }
+
+
+

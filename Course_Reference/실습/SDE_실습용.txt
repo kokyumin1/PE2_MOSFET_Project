@@ -1,0 +1,93 @@
+(sde:clear)
+
+(define Lg @Lg@)                ; [um] gate length
+(define Lsd @Lsd@)              ; [um] source/drain length
+(define Tbody @Tbody@)          ; [um] body thickness
+(define Tsd @Tsd@)              ; [um] junction depth
+(define Tox @Tox@)              ; [um] oxide thickness
+(define Tg @Tg@)                ; [um] gate thickness
+
+(define Na @Na@)                ; [cm-3] Boron doping concentration
+(define Nd @Nd@)                ; [cm-3] Arsenic doping concentration
+
+  
+;Structure define
+
+(sdegeo:create-rectangle (position 0 0 0) (position (+ Lsd Lg Lsd) Tbody 0) "Silicon" "Body")
+
+(sdegeo:create-rectangle (position Lsd Tbody 0) (position (+ Lsd Lg) (+ Tbody Tox) 0) "SiO2" "Gox")
+(sdegeo:create-rectangle (position Lsd (+ Tbody Tox) 0) (position (+ Lsd Lg) (+ Tbody Tox Tg) 0) "TiN" "Gate")
+
+
+
+
+
+
+;Contact Define
+
+(sdegeo:define-contact-set "source" 4.0 (color:rgb 1.0 0.0 0.0 ) "##")
+(sdegeo:define-contact-set "drain" 4.0 (color:rgb 0.0 1.0 0.0 ) "##")
+(sdegeo:define-contact-set "gate" 4.0 (color:rgb 0.0 0.0 1.0 ) "##")
+(sdegeo:define-contact-set "body" 4.0 (color:rgb 1.0 1.0 1.0 ) "##")
+
+
+;Activation Contact
+
+(sdegeo:insert-vertex (position (+ (* 0.5 Lsd) (* 0.3 Lsd)) Tbody 0))
+(sdegeo:insert-vertex (position (+ (* 0.5 Lsd) (* -0.3 Lsd)) Tbody 0))
+(sdegeo:set-contact (list (car (find-edge-id (position (* 0.5 Lsd) Tbody 0)))) "source")
+
+(sdegeo:insert-vertex (position (+ Lsd Lg (* 0.5 Lsd) (* 0.3 Lsd)) Tbody 0))
+(sdegeo:insert-vertex (position (+ Lsd Lg (* 0.5 Lsd) (* -0.3 Lsd)) Tbody 0))
+(sdegeo:set-contact (list (car (find-edge-id (position  (+ Lsd Lg (* 0.5 Lsd)) Tbody 0)))) "drain")
+
+(sdegeo:set-contact (list (car (find-edge-id (position (+ Lsd (* 0.5 Lg)) (+ Tbody Tox Tg) 0)))) "gate")
+
+(sdegeo:set-contact (list (car (find-edge-id (position (+ Lsd (* 0.5 Lg)) 0 0)))) "body")
+
+
+
+
+;Constant doping
+
+(sdedr:define-constant-profile "Const.Body" "BoronActiveConcentration" Na)
+(sdedr:define-constant-profile-region "PlaceCD.Body" "Const.Body" "Body")
+
+
+;Gaussian doping
+
+(sdedr:define-refeval-window "BaseLine.Source" "Line" (position 0 Tbody 0) (position Lsd Tbody 0))
+(sdedr:define-gaussian-profile "Impl.Source" "ArsenicActiveConcentration" "PeakPos" 0 "PeakVal" Nd "ValueAtDepth" 5e17 "Depth" Tsd "Gauss" "Factor" 0.35)
+(sdedr:define-analytical-profile-placement "Impl.Source" "Impl.Source" "BaseLine.Source" "Negative" "NoReplace" "Eval")
+
+(sdedr:define-refeval-window "BaseLine.Drain" "Line" (position (+ Lsd Lg) Tbody 0) (position (+ Lsd Lg Lsd) Tbody 0))
+(sdedr:define-gaussian-profile "Impl.Drain" "ArsenicActiveConcentration" "PeakPos" 0 "PeakVal" Nd "ValueAtDepth" 5e17 "Depth" Tsd "Gauss" "Factor" 0.35)
+(sdedr:define-analytical-profile-placement "Impl.Drain" "Impl.Drain" "BaseLine.Drain" "Negative" "NoReplace" "Eval")
+
+
+
+;Mesh setting
+(sdedr:define-refeval-window "Entire" "Rectangle"  (position 0 0 0)  (position (+ Lsd Lg Lsd) (+ Tbody Tox Tg) 0))
+(sdedr:define-refinement-size "Entire" 0.05 0.05 0 0.05 0.05 0)
+(sdedr:define-refinement-placement "Entire" "Entire" (list "window" "Entire" ) )
+
+(sdedr:define-refeval-window "Channel" "Rectangle"  (position Lsd (- Tbody Tsd) 0)  (position (+ Lsd Lg) Tbody 0))
+(sdedr:define-refinement-size "Channel" 0.02 0.02 0 0.02 0.02 0)
+(sdedr:define-refinement-placement "Channel" "Channel" (list "window" "Channel" ) )
+
+(sdedr:define-refeval-window "Oxide" "Rectangle"  (position Lsd (- Tbody (* 0.5 Tox)) 0)  (position (+ Lsd Lg) (+ Tbody Tox (* 0.5 Tox)) 0))
+(sdedr:define-refinement-size "Oxide" 0.004 0.004 0 0.004 0.004 0)
+(sdedr:define-refinement-placement "Oxide" "Oxide" (list "window" "Oxide" ) )
+
+
+;Mesh Build
+(sde:set-meshing-command "snmesh -a -c boxmethod")
+(sdedr:write-cmd-file "n@node@_msh.cmd")
+(sde:build-mesh "snmesh" "-a -c boxmethod" "n@node@_msh")
+
+
+
+
+
+
+
