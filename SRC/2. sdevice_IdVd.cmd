@@ -46,10 +46,18 @@ Plot {
     eCurrent hCurrent                  # 전자 및 정공 전류 밀도 분포 (전류 경로 분석용)
     ElectricField                      # 전기장(Electric Field) 분포 (채널 방향 수평 전계 및 게이트 수직 전계 분석)
     Potential SpaceCharge              # 전위(Potential) 분포 및 공간전하 분포
-    eMobility hMobility                # 전자 및 정공 이동도 분포 (강전계에 의한 이동도 저하 맵 확인 가능)
+    eMobility hMobility                # 이동도 분포
     eVelocity hVelocity                # 전자/정공의 표동 속도(Drift Velocity) 분포 (채널 내에서 전자 속도가 포화값에 수렴하는지 분석 가능)
     Band2BandGeneration                # GIDL 분석용 BTBT 터널링 발생율 분포
     ConductionBandEnergy ValenceBandEnergy # 전도대 및 가전자대 에너지 준위 분포 (에너지 밴드 다이어그램 플롯용)
+}
+
+# 4-2. 집계 데이터 정의 (CurrentPlot Section)
+# 특정 적분 연산을 PLT 결과 파일에 저장하여 1D 스칼라 특성으로 쉽게 추출하도록 설정합니다.
+currentplot {
+    Band2BandGeneration( Integrate(Semiconductor) )
+    eBand2BandGeneration( Integrate(Semiconductor) )
+    hBand2BandGeneration( Integrate(Semiconductor) )
 }
 
 # 5. 수학적 계산 설정 (Math Section)
@@ -72,6 +80,8 @@ Solve {
     Poisson
     Coupled { Poisson Electron }
     Coupled { Poisson Electron Hole }
+    save(FilePrefix="vd0_n@node@")
+    plot(FilePrefix="vd0_n@node@")
     
     # 6-2. 게이트 전압(Vg)을 목표 전압까지 램핑(Ramping)
     # SWB에서 선언된 Goal 변수 @Vg@ (예: 1.0 V, 2.0 V, 3.0 V) 까지 게이트 전압을 단계적으로 상승시킵니다.
@@ -80,13 +90,61 @@ Solve {
         InitialStep=1e-3 Maxstep=0.1 MinStep=1e-7
         Goal { name="gate" voltage=@Vg@ }
     ) { Coupled { Poisson Electron Hole } }
+    save(FilePrefix="vg_initial_n@node@")
+    plot(FilePrefix="vg_initial_n@node@")
+    Load(FilePrefix="vg_initial_n@node@")
     
-    # 6-3. 드레인 전압(Vd)을 0.0 V에서 3.0 V까지 스윕(Sweep)
-    # 고정된 게이트 전압 상태에서, 드레인 바이어스를 3.0V까지 상승시키며 각 바이어스 포인트에서의 드레인 전류(Id)를 추출합니다.
-    # 결과물인 .plt 파일을 Inspect로 열어 플롯하면 최종 Id-Vd 포화 특성 및 채널 길이 변조 효과(CLM) 곡선을 획득할 수 있습니다.
+    # 6-3. 드레인 전압(Vd)을 단계별로 0.0 V에서 3.0 V까지 스윕(Sweep)
+    # 고정된 게이트 전압 상태에서, 드레인 바이어스를 0.5V 단위로 스윕하면서 중간 상태의 TDR 및 전위/전계/농도 공간 분포를 저장합니다.
+    # NewCurrentPrefix="IdVd_L_"을 지정하여 자동 추출 라이브러리 및 Inspect 모듈이 I-V 플롯을 정확하게 로딩할 수 있게 맞춥니다.
+    Quasistationary (
+        InitialStep=1e-3 Maxstep=0.1 MinStep=1e-7
+        Goal { name="drain" voltage=0.0 }
+    ) { Coupled { Poisson Electron Hole } }   
+    save(FilePrefix="Vd_0.0_n@node@") 
+    plot(FilePrefix="Vd_0.0_n@node@") 
+    NewCurrentPrefix="IdVd_L_"   
+
+    Quasistationary (
+        InitialStep=1e-3 Maxstep=0.1 MinStep=1e-7
+        Goal { name="drain" voltage=0.5 }
+    ) { Coupled { Poisson Electron Hole } }   
+    save(FilePrefix="Vd_0.5_n@node@") 
+    plot(FilePrefix="Vd_0.5_n@node@") 
+
+    Quasistationary (
+        InitialStep=1e-3 Maxstep=0.1 MinStep=1e-7
+        Goal { name="drain" voltage=1.0 }
+    ) { Coupled { Poisson Electron Hole } }   
+    save(FilePrefix="Vd_1.0_n@node@") 
+    plot(FilePrefix="Vd_1.0_n@node@") 
+
+    Quasistationary (
+        InitialStep=1e-3 Maxstep=0.1 MinStep=1e-7
+        Goal { name="drain" voltage=1.5 }
+    ) { Coupled { Poisson Electron Hole } }   
+    save(FilePrefix="Vd_1.5_n@node@") 
+    plot(FilePrefix="Vd_1.5_n@node@") 
+
+    Quasistationary (
+        InitialStep=1e-3 Maxstep=0.1 MinStep=1e-7
+        Goal { name="drain" voltage=2.0 }
+    ) { Coupled { Poisson Electron Hole } }   
+    save(FilePrefix="Vd_2.0_n@node@") 
+    plot(FilePrefix="Vd_2.0_n@node@") 
+
+    Quasistationary (
+        InitialStep=1e-3 Maxstep=0.1 MinStep=1e-7
+        Goal { name="drain" voltage=2.5 }
+    ) { Coupled { Poisson Electron Hole } }   
+    save(FilePrefix="Vd_2.5_n@node@") 
+    plot(FilePrefix="Vd_2.5_n@node@") 
+
     Quasistationary (
         InitialStep=1e-3 Maxstep=0.1 MinStep=1e-7
         Goal { name="drain" voltage=3.0 }
-    ) { Coupled { Poisson Electron Hole } }
+    ) { Coupled { Poisson Electron Hole } }   
+    save(FilePrefix="Vd_3.0_n@node@") 
+    plot(FilePrefix="Vd_3.0_n@node@") 
 }
 

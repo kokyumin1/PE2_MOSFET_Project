@@ -20,7 +20,7 @@ Electrode {
     { name="gate"   voltage=0.0 Workfunction=4.6 }
     { name="source" voltage=0.0 }
     { name="drain"  voltage=0.0 }
-    { name="body"   voltage=0.0 }
+    { name="body"   voltage=@Vbody@ }
 }
 
 # 3. 핵심 물리 현상 모델 활성화 (Physics Section)
@@ -56,33 +56,86 @@ Math {
 
 # 6. 바이어스 시나리오 해석 (Solve Section)
 # Id-Vg 곡선을 정확하게 뽑아내기 위해 게이트 전압을 마이너스 영역(-1.0 V)부터 스윕 시작합니다.
+# 교수님 템플릿과 동일하게 드레인을 먼저 인가한 후 게이트를 스윕하는 순서로 배치하며, 중간 상태를 모두 개별 저장합니다.
 Solve {
     # 6-1. 초기 열평형 상태(V=0) 해석
     Poisson
     Coupled { Poisson Electron }
     Coupled { Poisson Electron Hole }
+    save(FilePrefix="vd0_n@node@")
+    plot(FilePrefix="vd0_n@node@")
     
-    # 6-2. 게이트 전압(Vg)을 스윕 시작점인 -1.0 V로 이동
-    # GIDL 및 오프(Off) 상태의 누설 전류 특성을 제대로 관찰하기 위해 게이트를 -1.0 V까지 먼저 램핑시킵니다.
-    Quasistationary (
-        InitialStep=1e-3 Maxstep=0.1 MinStep=1e-7
-        Goal { name="gate" voltage=-1.0 }
-    ) { Coupled { Poisson Electron Hole } }
-    
-    # 6-3. 드레인 전압(Vd)을 분석 대상 전압(@Vd@)으로 램핑
+    # 6-2. 드레인 전압(Vd)을 분석 대상 전압(@Vd@)으로 램핑
     # SWB에서 지정한 목표 전압(선형 영역: 0.1 V, 포화 영역: 5.0 V)까지 드레인 바이어스를 인가합니다.
     # [DIBL 분석 핵심]: 동일한 게이트 스윕 하에서 Vd=0.1 V와 Vd=5.0 V 두 곡선 간의 Vth 차이를 비교해야 합니다.
     Quasistationary (
-        InitialStep=1e-3 Maxstep=0.1 MinStep=1e-7
+        InitialStep=1e-4 Maxstep=1e-1 MinStep=1e-7
         Goal { name="drain" voltage=@Vd@ }
     ) { Coupled { Poisson Electron Hole } }
-    
-    # 6-4. 게이트 전압(Vg)을 -1.0 V에서 3.0 V까지 스윕(Sweep)
-    # 본격적인 Id-Vg 데이터를 얻기 위해 게이트 전압을 최종 3.0V까지 쓸어내립니다.
-    # 이 스레드에서 subthreshold swing(SS), 문턱 전압(Vth), DIBL 수치 및 GIDL과 Punch-through 누설전류를 모두 도출합니다.
+    save(FilePrefix="vd_initial_n@node@")
+    plot(FilePrefix="vd_initial_n@node@")
+    Load(FilePrefix="vd_initial_n@node@")
+
+    # 6-3. 게이트 전압(Vg)을 스윕 시작점인 -1.0 V로 이동
+    # GIDL 및 오프(Off) 상태의 누설 전류 특성을 제대로 관찰하기 위해 게이트를 -1.0 V까지 먼저 램핑시킵니다.
+    # NewCurrentPrefix="IdVg_L_"를 선언하여 Inspect 라이브러리 연동 시 필요한 결과 곡선 접두사를 지정합니다.
     Quasistationary (
-        InitialStep=1e-3 Maxstep=0.05 MinStep=1e-8
+        InitialStep=1e-4 Maxstep=1e-1 MinStep=1e-7
+        Goal { name="gate" voltage=-1.0 }
+    ) { Coupled { Poisson Electron Hole } }   
+    save(FilePrefix="Vg_n1.0_n@node@") 
+    plot(FilePrefix="Vg_n1.0_n@node@") 
+    NewCurrentPrefix="IdVg_L_"   
+    
+    # 6-4. 게이트 전압(Vg)을 -1.0 V에서 3.0 V까지 단계별로 스윕(Sweep)
+    # 보고서 2D profile 시각화 및 에너지 밴드 추출(DIBL 장벽 저하 증명)을 위해 각 단계별 구조 파일을 저장합니다.
+    Quasistationary (
+        InitialStep=1e-4 Maxstep=1e-1 MinStep=1e-7
+        Goal { name="gate" voltage=-0.4 }
+    ) { Coupled { Poisson Electron Hole } }   
+    save(FilePrefix="Vg_n0.4_n@node@") 
+    plot(FilePrefix="Vg_n0.4_n@node@")
+
+    Quasistationary (
+        InitialStep=1e-4 Maxstep=1e-1 MinStep=1e-7
+        Goal { name="gate" voltage=0.0 }
+    ) { Coupled { Poisson Electron Hole } }   
+    save(FilePrefix="Vg_0.0_n@node@") 
+    plot(FilePrefix="Vg_0.0_n@node@")     
+
+    Quasistationary (
+        InitialStep=1e-4 Maxstep=1e-1 MinStep=1e-7
+        Goal { name="gate" voltage=0.6 }
+    ) { Coupled { Poisson Electron Hole } }   
+    save(FilePrefix="Vg_0.6_n@node@") 
+    plot(FilePrefix="Vg_0.6_n@node@") 
+
+    Quasistationary (
+        InitialStep=1e-4 Maxstep=1e-1 MinStep=1e-7
+        Goal { name="gate" voltage=1.3 }
+    ) { Coupled { Poisson Electron Hole } }   
+    save(FilePrefix="Vg_1.3_n@node@") 
+    plot(FilePrefix="Vg_1.3_n@node@") 
+
+    Quasistationary (
+        InitialStep=1e-4 Maxstep=1e-1 MinStep=1e-7
+        Goal { name="gate" voltage=1.6 }
+    ) { Coupled { Poisson Electron Hole } }   
+    save(FilePrefix="Vg_1.6_n@node@") 
+    plot(FilePrefix="Vg_1.6_n@node@") 
+
+    Quasistationary (
+        InitialStep=1e-4 Maxstep=1e-1 MinStep=1e-7
+        Goal { name="gate" voltage=2.0 }
+    ) { Coupled { Poisson Electron Hole } }   
+    save(FilePrefix="Vg_2.0_n@node@") 
+    plot(FilePrefix="Vg_2.0_n@node@") 
+
+    Quasistationary (
+        InitialStep=1e-4 Maxstep=1e-1 MinStep=1e-7
         Goal { name="gate" voltage=3.0 }
-    ) { Coupled { Poisson Electron Hole } }
+    ) { Coupled { Poisson Electron Hole } }   
+    save(FilePrefix="Vg_3.0_n@node@") 
+    plot(FilePrefix="Vg_3.0_n@node@") 
 }
 
