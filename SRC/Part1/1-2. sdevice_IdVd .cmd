@@ -33,7 +33,7 @@ Physics {
     # [매우 중요 - 1-2 속도 포화(Velocity Saturation) 분석 지침]:
     # 1. 속도 포화 효과가 들어간 표준 특성을 볼 때는 아래처럼 'HighFieldSaturation'을 포함합니다.
     # 2. 속도 포화 효과를 끄고(비활성화) 비교 시뮬레이션을 돌릴 때는 아래 라인을 mobility (DopingDependence) 로만 수정해 줍니다.
-    mobility (DopingDependence HighFieldSaturation)    # DopingDependence: 불순물 산란에 의한 이동도 저하 반영, HighFieldSaturation: 수평 강전계에 의한 이동도 포화 및 드리프트 속도 포화 현상 반영
+    mobility (DopingDependence)    # DopingDependence: 불순물 산란에 의한 이동도 저하 반영, HighFieldSaturation: 수평 강전계에 의한 이동도 포화 및 드리프트 속도 포화 현상 반영
     
     EffectiveIntrinsicDensity(NoBandGapNarrowing)      # 대역간 좁아짐(Band Gap Narrowing, BGN) 현상을 활성화하지 않은 유효 고유 캐리어 농도 설정 (가이드 매칭)
     Recombination( SRH(DopingDependence) Band2Band(E1) ) # SRH(Shockley-Read-Hall): 도핑 농도 의존적 결함 재결합 재현, Band2Band(E1): BTBT(대역간 터널링)을 켜서 드레인단 강전계로 인한 GIDL 특성 캡처 준비
