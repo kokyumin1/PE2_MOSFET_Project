@@ -43,6 +43,38 @@
 
 ---
 
+### 🔍 [보충] Vth, SS, DIBL 물리량 추출 방법 (SWB / Svisual)
+
+보고서 작성을 위해 필요한 $V_{th}$, $SS$, $DIBL$ 수치를 추출하는 두 가지 방식입니다.
+
+#### 방법 1. SWB 내 Inspect 도구 추가 (자동 추출 - 권장)
+1. **SWB에서 도구 추가**: SDEVICE 컬럼 헤더 우클릭 ➡️ `Insert Tool` ➡️ `After` ➡️ `inspect` 선택.
+2. **인풋 스크립트 작성**: inspect 헤더 우클릭 ➡️ `Edit Input` ➡️ `Commands...` 후 아래의 텍스트 입력 후 저장:
+   ```tcl
+   load_library EXTRACT
+   proj_load IdVg_L_n@previous@_des.plt iv
+   cv_create idvgs "iv gate OuterVoltage" "iv drain TotalCurrent"
+   set Lg @Lg@
+   set W 1
+   set Vth [ExtractVti Vth idvgs [expr 1e-7*$W/$Lg]]
+   set SS [ExtractSS SS idvgs [expr $Vth]]
+   set Ion [ExtractIoff Ion idvgs 3.0]
+   set Ioff [ExtractIoff Ioff idvgs 0.0]
+   set ratio [expr [expr $Ion]/[expr $Ioff]]
+   set scientificNotation [format "%.3e" $ratio]
+   ft_scalar OnOffRatio $scientificNotation
+   ```
+3. **실행 및 결과 확인**: `Ctrl + P` 로 전처리 후 `F9` 실행. 완료 시 SWB 테이블상에 `Vth`, `SS`, `OnOffRatio` 값이 숫자로 자동 표기됨.
+4. **DIBL 계산**: SWB 테이블 데이터를 드래그하여 복사 후 Excel에 붙여넣고 아래 공식으로 일괄 계산:
+   `DIBL = (Vth_0.1V - Vth_5.0V) / 4.9 * 1000` (단위: mV/V)
+
+#### 방법 2. Svisual 그래프 창 활용 (수동 추출)
+1. **Vth 추출**: Svisual에서 $I_d-V_g$ 로그 스케일 곡선을 켠 뒤, Y축의 전류가 일정 전류 조건($I_d = 10^{-7}\text{ A}/\mu\text{m} \times (W/L)$)을 만족하는 교점의 X축(Gate Voltage) 값을 마우스 커서 좌표로 직접 읽습니다.
+2. **SS 추출**: 문턱 전압 바로 직전의 선형 구간(기울기가 일정한 서브문턱 영역)에서 전류가 딱 10배(1 decade, 예: $10^{-10}\text{ A} \rightarrow 10^{-9}\text{ A}$) 변하는 두 지점 사이의 X축 전압 간격($\Delta V_{g}$)을 읽습니다. 그 전압 폭[mV]이 바로 SS 값입니다.
+3. **DIBL 추출**: 동일 $L_g$의 $V_{d}=0.1\text{ V}$와 $V_{d}=5.0\text{ V}$ 커브를 겹쳐서 열고, 각각의 $V_{th}$를 찾아 그 차이값(V)을 구한 뒤 $4.9$로 나누어 산출합니다.
+
+---
+
 ### 🖼️ B. 소자 내부 물리량 분석 그래프 및 2D 맵 (Svisual 활용)
 
 #### 1) 전도대 에너지 밴드 다이어그램 (1D Cut-line) 비교
