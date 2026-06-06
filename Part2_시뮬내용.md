@@ -2,7 +2,32 @@
 
 본 문서는 물리전자공학 II 프로젝트 보고서 2장 작성을 위해 Sentaurus TCAD에서 진행해야 하는 시뮬레이션 사양과 Svisual / Inspect를 통해 추출해야 하는 핵심 데이터를 정리한 종합 가이드라인입니다.
 
+## 📑 PDF 템플릿 Part 2 요구사항 원문 및 번역
+
+김시현 교수님의 보고서 템플릿 PDF 내 2장(Short Channel Effects)의 원문 요구사항과 번역본입니다. 보고서 작성 시 본 질문에 대한 답변 형태로 내용을 구성해야 합니다.
+
+### 2-1. 전달 특성 (Transfer Characteristics)
+*   **원문**: `Examine the transfer characteristics of MOSFET with Lg (=1 μm, 0.5 μm, 0.35 μm) for each VDS of 0.1 V and 5.0 V.`
+*   **번역**: 각 $V_{DS}$가 $0.1\text{ V}$ 및 $5.0\text{ V}$일 때, 게이트 길이 $L_g$ ($1\ \mu\text{m}, 0.5\ \mu\text{m}, 0.35\ \mu\text{m}$)에 따른 MOSFET의 전달 특성을 조사하십시오.
+*   **작성 가이드**: $I_d-V_g$ plot과 현상 분석을 적절한 그림/그래프와 함께 자유롭게 서술합니다. (제출 시 가이드 안내 문구는 삭제)
+
+### 2-2. 문턱 전압 및 서브문턱 스윙 ($V_{th}$ & $SS$)
+*   **원문**: `Extract the threshold voltage (Vth) and subthreshold swing (SS) values as a function of Lg and analyze their trends. Here, determine Vth using the constant-current method at ID = 10^-7 A/μm x (W/L), and extract SS at the corresponding Vth point. Using appropriate analyses, discuss how Vth roll-off and SS degradation evolve as Lg scales down.`
+*   **번역**: 게이트 길이 $L_g$의 함수로서 문턱 전압($V_{th}$) 및 서브문턱 스윙($SS$) 값을 추출하고 그 경향성을 분석하십시오. 여기서 $V_{th}$는 $I_D = 10^{-7}\text{ A}/\mu\text{m} \times (W/L)$ 조건의 일정 전류법(Constant-Current Method)을 사용하여 결정하고, $SS$는 해당 $V_{th}$ 지점에서 추출하십시오. 적절한 분석을 통해 $L_g$가 축소됨에 따라 $V_{th}$ 롤오프 및 $SS$ 저하가 어떻게 진행되는지 논의하십시오.
+*   **작성 가이드**: $I-V$ plot, 현상 분석(적절한 분석을 위한 plot 포함) 및 논의(현상의 물리적 의미, 이론값과의 비교 등)를 적절한 그림/그래프와 함께 자유롭게 서술합니다.
+
+### 2-3. DIBL (Drain-Induced Barrier Lowering)
+*   **원문**: `Extract the DIBL values as a function of gate length (Lg) and analyze their trends. Calculate DIBL with VDS,high = 5.0 V and VDS,low = 0.1 V.`
+*   **번역**: 게이트 길이 $L_g$의 함수로서 DIBL 값을 추출하고 그 경향성을 분석하십시오. DIBL은 $V_{DS,\text{high}} = 5.0\text{ V}$ 및 $V_{DS,\text{low}} = 0.1\text{ V}$ 조건으로 계산하십시오.
+*   **작성 가이드**: $I-V$ plot, 현상 분석(적절한 분석을 위한 plot 포함) 및 논의(현상의 물리적 의미, 이론값과의 비교 등)를 적절한 그림/그래프와 함께 자유롭게 서술합니다.
+
+### 2-4. GIDL 및 펀치스루 (GIDL & Punch-through)
+*   **원문**: `Analyze the gate-induced drain leakage (GIDL) current and punch-through phenomenon as a function of Lg and VDS.`
+*   **번역**: 게이트 길이 $L_g$ 및 $V_{DS}$의 함수로서 게이트 유도 드레인 누설(GIDL) 전류 및 펀치스루(Punch-through) 현상을 분석하십시오.
+*   **작성 가이드**: $I-V$ plot, 현상 분석(적절한 분석을 위한 plot 포함) 및 논의(현상의 물리적 의미, 이론값과의 비교 등)를 적절한 그림/그래프와 함께 자유롭게 서술합니다.
+
 ---
+
 
 ## 1. 시뮬레이션 구동 조건 및 파일
 *   **실행할 시뮬레이션 파일**: `SRC/Part2/2-1. sdevice_IdVg.cmd`
