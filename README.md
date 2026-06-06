@@ -16,10 +16,16 @@ Sentaurus TCAD(sde, sdevice) 시뮬레이터를 활용하여 **단채널(Short C
 
 ```text
 PE2_MOSFET_Project/
-├── SRC/                     # TCAD 시뮬레이션 원본 소스 코드 (.cmd)
+├── SRC/                     # TCAD 시뮬레이션 원본 소스 코드 및 파트별 백업 (.cmd)
 │   ├── 1. sde_dvs.cmd       # Sentaurus Structure Editor (소자 구조 및 메쉬 정의)
 │   ├── 2. sdevice_IdVd.cmd  # Sentaurus Device (Id-Vd 특성 추출 덱)
-│   └── 3. sdevice_IdVg.cmd  # Sentaurus Device (Id-Vg 특성 추출 및 GIDL/SS용 덱)
+│   ├── 3. sdevice_IdVg.cmd  # Sentaurus Device (Id-Vg 특성 추출 및 GIDL/SS용 덱)
+│   ├── Part1/               # Part 1 비이상적 효과 시뮬레이션 백업
+│   └── Part2/               # Part 2 단채널 효과 시뮬레이션 백업
+├── Sim_Guide/               # 파트별 시뮬레이션 실행 상세 가이드 및 물리량 분석 수식
+│   ├── Part1_시뮬내용.md    # 1장 비이상적 효과 분석 가이드 (CLM, 속도 포화)
+│   ├── Part2_시뮬내용.md    # 2장 단채널 효과 분석 가이드 (Vth, SS, DIBL, GIDL)
+│   └── Part3_시뮬내용.md    # 3장 단채널 효과 개선 가이드 (Tox, Nbody, Tsd 최적화)
 ├── Course_Reference/        # 수업 시간에 제공된 설계 템플릿 및 시뮬레이션 가이드
 │   ├── 실습/                # 기본 예제 스크립트 및 튜토리얼 정리 파일
 │   └── *.pdf, *.pptx        # 공식 강의 매뉴얼 및 보고서 템플릿 (.docx)
