@@ -20,7 +20,7 @@ Electrode {
     { name="gate"   voltage=0.0 Workfunction=4.6 }
     { name="source" voltage=0.0 }
     { name="drain"  voltage=0.0 }
-    { name="body"   voltage=@Vbody@ }       # SWB에서 기판 바이어스를 변수화하여 Body Effect 스윕이 가능하게 파라미터화함.
+    { name="body"   voltage=0.0 }       # 기판 바이어스를 0.0V로 고정 (SWB 테이블 Vbody 부재 대응)
 }
 
 # 3. 핵심 물리 현상 모델 활성화 (Physics Section)
