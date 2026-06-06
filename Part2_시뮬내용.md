@@ -81,13 +81,34 @@
    cv_create idvgs "iv gate OuterVoltage" "iv drain TotalCurrent"
    set Lg @Lg@
    set W 1
+
+   # Vth 일정전류 추출 (누설 전류가 타겟 전류보다 크면 "x"를 반환하므로 예외 처리 추가)
    set Vth [ExtractVti Vth idvgs [expr 1e-7*$W/$Lg]]
-   set SS [ExtractSS SS idvgs [expr $Vth]]
+
+   if { ![string is double -strict $Vth] } {
+       # 추출 실패 시 (단채널 고전압 펀치스루 등으로 누설전류가 이미 기준 전류를 넘어버린 경우)
+       ft_scalar Vth -1.0
+       ft_scalar SS -1.0
+       set Vth -1.0
+   } else {
+       # Vth 추출 성공 시 정상적으로 SS 추출 진행
+       set SS [ExtractSS SS idvgs $Vth]
+       if { ![string is double -strict $SS] } {
+           ft_scalar SS -1.0
+       }
+   }
+
    set Ion [ExtractIoff Ion idvgs 3.0]
    set Ioff [ExtractIoff Ioff idvgs 0.0]
-   set ratio [expr [expr $Ion]/[expr $Ioff]]
-   set scientificNotation [format "%.3e" $ratio]
-   ft_scalar OnOffRatio $scientificNotation
+
+   # Ion, Ioff 비율 계산 시 예외 처리
+   if { [string is double -strict $Ion] && [string is double -strict $Ioff] && $Ioff > 0 } {
+       set ratio [expr $Ion / $Ioff]
+       set scientificNotation [format "%.3e" $ratio]
+       ft_scalar OnOffRatio $scientificNotation
+   } else {
+       ft_scalar OnOffRatio "0.000e+00"
+   }
    ```
 3. **실행 및 결과 확인**: `Ctrl + P` 로 전처리 후 `F9` 실행. 완료 시 SWB 테이블상에 `Vth`, `SS`, `OnOffRatio` 값이 숫자로 자동 표기됨.
 4. **DIBL 계산**: SWB 테이블 데이터를 드래그하여 복사 후 Excel에 붙여넣고 아래 공식으로 일괄 계산:
